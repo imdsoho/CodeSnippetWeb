@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bootstrap Skeleton UI</title>
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net" rel="stylesheet">
+    <style>
+        .card { width: 18rem; }
+    </style>
+</head>
+<body class="p-5">
+
+<h3>로딩 중 스켈레톤</h3>
+<div class="card" aria-hidden="true">
+    <!-- 스켈레톤 이미지 영역 -->
+    <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <rect width="100%" height="100%" fill="#868e96"></rect>
+    </svg>
+
+    <div class="card-body">
+        <!-- 제목 스켈레톤 (wave 애니메이션) -->
+        <h5 class="card-title placeholder-glow">
+            <span class="placeholder col-6"></span>
+        </h5>
+        <!-- 내용 스켈레톤 -->
+        <p class="card-text placeholder-glow">
+            <span class="placeholder col-7"></span>
+            <span class="placeholder col-4"></span>
+            <span class="placeholder col-4"></span>
+            <span class="placeholder col-6"></span>
+            <span class="placeholder col-8"></span>
+        </p>
+        <!-- 버튼 스켈레톤 -->
+        <a href="#" tabindex="-1" class="btn btn-primary disabled placeholder col-6">button</a>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net"></script>
+
+<script>
+    setTimeout(() => {
+        document.querySelector('.card').style.display = 'none';
+        // 여기에 실제 컨텐츠를 렌더링하는 코드 추가
+    }, 5000);
+</script>
+</body>
+</html>
