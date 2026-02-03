@@ -1,25 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Text Transform</title>
+    <title>ProgressBar.js</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script src="/node_modules/jquery/dist/jquery.js" type="application/javascript"></script>
     <link href="/node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
     <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.js" type="text/javascript"></script>
 
+    <!-- These are probably out dated so you might want to use newest versions -->
+    <script defer src="./progressbar.js" type="application/javascript"></script>
+    <script defer src="./main.js" type="application/javascript"></script>
+
     <style>
-        .geneName {
-            display: inline-block;
-            transition: transform 0.2s; /* Animation */
+        .progress {
+            margin: 20px;
+            width: 400px;
+            height: 8px;
+            position: relative;
         }
 
-        .geneName:hover {
-            transform: scale(1.5); /* Scale up the button */
+        .progress > svg {
+            height: 100%;
+            display: block;
         }
-
     </style>
 </head>
 <body>
@@ -27,8 +33,10 @@
         <button type="button" class="btn btn-outline-primary m-2 p-2">
             <a href="/CodeSnippetWeb/code/index.html">Home</a>
         </button>
+
         <div>
-            <p class="geneName m-2 p-2 fs-6">Hover Over Me</p>
+            <a href="https://progressbarjs.readthedocs.io/en/latest/" class="m-2 p-2 fs-5">ProgressBar.js</a>
+            <div class="progress" id="progress"></div>
         </div>
     </div>
 </body>
