@@ -10,7 +10,8 @@ function getStateFromSSE(url, options, eventName){
 
     coordinatesElement = document.getElementById('coordinates');
 
-    eventSource.onopen = () => {
+    eventSource.onopen = (e) => {
+        console.log(e);
         console.log(`${eventSource.readyState} EventSource connected`);
         coordinatesElement.innerText = ''
     }

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ProgressBar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="/node_modules/jquery/dist/jquery.js" type="application/javascript"></script>
+    <link href="/node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.js" type="text/javascript"></script>
+
+    <script src="/assets/js/jquery.sse.js"></script>
+
+    <style>
+        #myProgress {
+            width: 100%;
+            background-color: #ddd;
+        }
+
+        #myBar {
+            width: 1%;
+            height: 30px;
+            background-color: #04AA6D;
+        }
+    </style>
+
+    <script>
+        let w = $.SSE('http://127.0.0.1:8000/get-progress', {
+            onOpen: function (e) {
+                console.log("Open");
+                console.log(e);
+            },
+            onEnd: function (e) {
+                console.log("End");
+                console.log(e);
+            },
+            onError: function (e) {
+                console.log("Could not connect");
+            },
+            onMessage: function (e) {
+                console.log("Message");
+                console.log(e);
+            },
+            options: {
+                forceAjax: false
+            },
+            events: {
+                ping: function (e) {
+                    coords = JSON.parse(e.data);
+
+                    if(coords.state === 1){
+                        console.log(coords);
+                    }
+                    else {
+                        sseStopTrigger();
+                    }
+                },
+                state: function (e) {
+                    data = JSON.parse(e.data);
+
+                    //console.log(data.rate);
+                    let elem = document.getElementById("myBar");
+                    elem.style.width = data.rate + "%";
+
+                    if(data.rate === 100){
+                        sseStopTrigger();
+                    }
+                }
+            },
+//            headers: {
+//                'Authorization': 'Bearer 000000000000000000000'
+//            }
+        });
+        //console.log(w.start());
+    </script>
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div id="myProgress" class="mt-3 mb-2">
+            <div id="myBar"></div>
+        </div>
+
+        <input type="button" value="Start Listen" onclick="w.start()"/>
+        <input type="button" value="Stop Listen" onclick="w.stop()"/>
+    </div>
+
+    <script>
+        function sseStartTrigger(){
+            w.start();
+        }
+        function sseStopTrigger(){
+            w.stop();
+        }
+    </script>
+
+</body>
+
+</html>

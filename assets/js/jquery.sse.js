@@ -1,0 +1,275 @@
+/*
+ * jQuery Plugin for Server-Sent Events (SSE) EventSource Polyfill v0.1.3
+ * https://github.com/byjg/jquery-sse
+ *
+ * This document is licensed as free software under the terms of the
+ * MIT License: http://www.opensource.org/licenses/mit-license.php
+ *
+ * Copyright (c) 2015 by JG (João Gilberto Magalhães).
+ */
+(function ($) {
+    $.extend({
+        SSE: function (url, customSettings) {
+            let sse = {instance: null, type: null};
+
+            let settings = {
+                onOpen: function (e) {
+                },
+                onEnd: function (e) {
+                },
+                onError: function (e) {
+                },
+                onMessage: function (e) {
+                },
+                options: {},
+                headers: {},
+                events: {}
+            };
+
+            $.extend(settings, customSettings);
+
+            sse._url = url;
+            sse._remoteHost = null;
+            sse._settings = settings;
+
+            // Start the proper EventSource object or Ajax fallback
+            sse._start = sse.start;
+            sse.start = function () {
+                //console.log("[this.instance] " + this.instance);
+                if (this.instance) {
+                    return false;
+                }
+
+                /*console.log("[window.EventSource] ");
+                console.dir(window.EventSource);                                // ƒ EventSource()
+                console.log("[this._settings.options.forceAjax] ");
+                console.dir(this._settings.options.forceAjax);                  // false
+                console.log("[Object.keys(this._settings.headers).length] ");
+                console.dir(Object.keys(this._settings.headers).length);        // 0*/
+
+                if (!window.EventSource || this._settings.options.forceAjax || (Object.keys(this._settings.headers).length > 0)) {
+                    createAjax(this);
+                } else {
+                    console.log(this);
+                    createEventSource(this);
+                    console.log(this);
+                }
+
+                return true;
+            };
+
+            // Stop the proper object
+            sse.stop = function (){
+                if (!this.instance) {
+                    return false;
+                }
+
+                if (!window.EventSource || this._settings.options.forceAjax || (Object.keys(this._settings.headers).length > 0)) {
+                    // Nothing to do;
+                } else {
+                    this.instance.close();
+                }
+                this._settings.onEnd();
+
+                this.instance = null;
+                this.type = null;
+
+                return true;
+            };
+
+            //console.dir(sse);   // Object
+            /*
+            instance : null
+            start : ƒ ()
+            stop : ƒ ()
+            type : null
+            _remoteHost : null
+            _settings : {options: {…}, onOpen: ƒ, onEnd: ƒ, onError: ƒ, onMessage: ƒ, …}
+            _start : undefined
+            _url : "http://127.0.0.1:8000/get-waypoints"
+            [[Prototype]] : Object */
+            return sse;
+        }
+    });
+
+
+    // Private Method for Handle EventSource object
+    function createEventSource(me) {
+        me.type = 'event';
+        me.instance = new EventSource(me._url);
+        me.instance.successCount = 0;
+
+        me.instance.onmessage = me._settings.onMessage;
+        me.instance.onopen = function (e) {
+            if (me.instance.successCount++ === 0) {
+                //console.log(e);
+                me._settings.onOpen(e);
+            }
+            /*
+            Event
+            isTrusted : true
+            bubbles : false
+            cancelBubble : false
+            cancelable : false
+            composed : false
+            currentTarget : null
+            defaultPrevented : false
+            eventPhase : 0
+            returnValue : true
+            srcElement : EventSource {successCount: 1, url: 'http://127.0.0.1:8000/get-waypoints', withCredentials: false, readyState: 1, onopen: ƒ, …}
+            target : EventSource {successCount: 1, url: 'http://127.0.0.1:8000/get-waypoints', withCredentials: false, readyState: 1, onopen: ƒ, …}
+            timeStamp : 1272.7000000001863
+            type : "open"*/
+        };
+        me.instance.onerror = function (e) {
+            if (e.target.readyState === EventSource.CLOSED) {
+                me._settings.onError(e);
+            }
+        };
+
+        for (let key in me._settings.events) {
+            me.instance.addEventListener(key, me._settings.events[key], false);
+        }
+    }
+    
+    // Handle the Ajax instance (fallback)
+    function createAjax(me) {
+        me.type = 'ajax';
+        me.instance = {successCount: 0, id: null, retry: 3000, data: "", event: ""};
+        runAjax(me);
+    }
+
+    function handleAjax(me, receivedData) {
+        if (!me.instance) {
+            return;
+        }
+
+        if (me.instance.successCount++ === 0) {
+            me._settings.onOpen();
+        }
+
+        let lines = receivedData.split("\n");
+
+        // Process the return to generate a compatible SSE response
+        me.instance.data = "";
+        let countBreakLine = 0;
+        for (var key in lines) {
+            var separatorPos = lines[key].indexOf(":");
+            var item = [
+                lines[key].substr(0, separatorPos),
+                lines[key].substr(separatorPos + 1)
+            ];
+            switch (item[0]) {
+                // If the first part is empty, needed to check another sequence
+                case "":
+                    if (!item[1] && countBreakLine++ === 1) {  // Avoid comments!
+                        eventMessage = {
+                            data: me.instance.data,
+                            lastEventId: me.instance.id,
+                            origin: 'http://' + me._remoteHost,
+                            returnValue: true
+                        };
+
+                        // If there are a custom event then call it
+                        if (me.instance.event && me._settings.events[me.instance.event]) {
+                            me._settings.events[me.instance.event](eventMessage);
+                        } else {
+                            me._settings.onMessage(eventMessage);
+                        }
+                        me.instance.data = "";
+                        me.instance.event = "";
+                        countBreakLine = 0;
+                    }
+                    break;
+
+                // Define the new retry object;
+                case "retry":
+                    countBreakLine = 0;
+                    me.instance.retry = parseInt(item[1].trim());
+                    break;
+
+                // Define the new ID
+                case "id":
+                    countBreakLine = 0;
+                    me.instance.id = item[1].trim();
+                    break;
+
+                // Define a custom event
+                case "event":
+                    countBreakLine = 0;
+                    me.instance.event = item[1].trim();
+                    break;
+
+                // Define the data to be processed.
+                case "data":
+                    countBreakLine = 0;
+                    me.instance.data += (me.instance.data !== "" ? "\n" : "") + item[1].trim();
+                    break;
+
+                default:
+                    countBreakLine = 0;
+            }
+        }
+    }
+
+    function getRemoteHost(me) {
+        $.ajax({
+            type: 'HEAD',
+            headers: me._settings.headers,
+            url: me._url,
+            complete: function(xhr) {
+                me._remoteHost = xhr.getResponseHeader('Host');
+            }
+        });
+    }
+    
+    // Handle the continous Ajax request (fallback)
+    function runAjax(me) {
+        if (!me.instance) {
+            return;
+        }
+
+        if (!me._remoteHost) {
+            getRemoteHost(me);
+        }
+
+        var headers = {'Last-Event-ID': me.instance.id};
+
+        $.extend(headers, me._settings.headers);
+
+        // https://stackoverflow.com/questions/7740646/jquery-read-ajax-stream-incrementally
+        let lastResponseLen = false;
+        let thisResponse = "";
+        $.ajax({
+            url: me._url,
+            method: 'GET',
+            headers: headers,
+            xhrFields: {
+                onprogress: function(e) {
+                    var response = e.currentTarget.response;
+                    if(lastResponseLen === false) {
+                        thisResponse += response;
+                    } else {
+                        thisResponse += response.substring(lastResponseLen);
+                    }
+                    lastResponseLen = response.length;
+
+                    var hasFullMessage = thisResponse.lastIndexOf("\n\n");
+                    if (hasFullMessage >= 0) {
+                        var chunk = thisResponse.substring(0, hasFullMessage + 2);
+                        thisResponse = thisResponse.substring(hasFullMessage + 2);
+                        handleAjax(me, chunk)
+                    }
+                }
+            },
+            success: function () {
+                setTimeout(function () {
+                    runAjax(me);
+                }, me.instance.retry);
+            },
+            error: me._settings.onError
+        });
+    }
+    
+})(jQuery);
+

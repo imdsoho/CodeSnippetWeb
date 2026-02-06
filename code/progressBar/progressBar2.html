@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ProgressBar.js</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="/node_modules/jquery/dist/jquery.js" type="application/javascript"></script>
+    <link href="/node_modules/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.js" type="text/javascript"></script>
+
+    <style>
+        #myProgress {
+            width: 100%;
+            background-color: #ddd;
+        }
+
+        #myBar {
+            width: 1%;
+            height: 30px;
+            background-color: #04AA6D;
+        }
+    </style>
+<body>
+    <div class="container">
+        <h3 class="mt-2 pt-2">Javascript Progress Bar</h3>
+        <div class="ms-0 mb-2 p-0">[REF] https://www.w3schools.com/howto/howto_js_progressbar.asp</div>
+
+        <div id="myProgress">
+            <div id="myBar"></div>
+        </div>
+
+        <div class="mt-2 mb-2 ps-0">
+            <button onclick="move()">Click Me</button>
+        </div>
+    </div>
+
+    <script>
+        let i = 0;
+        function move() {
+            if (i === 0) {
+                i = 1;
+                let elem = document.getElementById("myBar");
+                let width = 1;
+                let id = setInterval(frame, 10);
+                function frame() {
+                    if (width >= 100) {
+                        clearInterval(id);
+                        i = 0;
+                    } else {
+                        width++;
+                        elem.style.width = width + "%";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
