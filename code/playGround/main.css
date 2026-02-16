@@ -1,0 +1,62 @@
+@font-face {
+    font-family: 'LABDigital';
+    font-weight: normal;
+    font-style: normal;
+    src: url('https://cdn.jsdelivr.net/gh/webfontworld/fontlab/LABDigital.eot');
+    src: url('https://cdn.jsdelivr.net/gh/webfontworld/fontlab/LABDigital.eot?#iefix') format('embedded-opentype'),
+    url('https://cdn.jsdelivr.net/gh/wooin21/fonts-LAB/LABDigital-Regular.woff2') format('woff2');
+    font-display: swap;
+}
+
+.h-circle {
+    width: 200px;
+    height: 200px;
+}
+.h-circle-start{
+    background-color: var(--bs-primary-bg-subtle);
+}
+.h-circle-stop{
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.countdown {
+    font-family: 'LABDigital', sans-serif;
+    font-size: 100px;
+}
+.step {
+    font-family: 'LABDigital', sans-serif;
+    font-size: 200px;
+}
+
+.h-border {
+    border-style: solid;
+    border-width: 1px;
+}
+
+.h-border-top {
+    border-left-color: var(--bs-primary);
+    border-top-color: var(--bs-primary);
+    border-right-color: var(--bs-primary);
+    border-bottom-color: var(--bs-light-bg-subtle);
+}
+
+.h-border-left {
+    border-left-color: var(--bs-primary);
+    border-top-color: var(--bs-primary);
+    border-right-color: var(--bs-light-bg-subtle);
+    border-bottom-color: var(--bs-primary);
+}
+
+.h-border-right {
+    border-left-color: var(--bs-light-bg-subtle);
+    border-top-color: var(--bs-primary);
+    border-right-color: var(--bs-primary);
+    border-bottom-color: var(--bs-primary);
+}
+
+.h-border-bottom {
+    border-left-color: var(--bs-primary);
+    border-top-color: var(--bs-light-bg-subtle);
+    border-right-color: var(--bs-primary);
+    border-bottom-color: var(--bs-primary);
+}
