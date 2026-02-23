@@ -5,7 +5,12 @@ $(window).on('load', function() {
     });
 
     function createHeatmap() {
-        let heatmapApiUrl = "http://10.125.167.115:8000/create_heatmap";
+        const uuid = crypto.randomUUID();
+
+        let user_id = "imdsoho";
+        let job_id = uuid;
+        let heatmapApiUrl = "http://10.125.167.115:8000/plots?user_id="+user_id+"&job_id=" + job_id;
+
         let apiData = {};
 
         $.ajax({
@@ -18,7 +23,12 @@ $(window).on('load', function() {
             error: function (response, status){
                 console.log(response + ": \n" + status);
             },
-            beforeSend: ajaxBeforeSendEvent,
+            beforeSend: function (){
+                let url = "http://10.125.167.115:8000/get-plot-status?job_id=" + job_id;
+                let options = {};
+                let eventName = "plot";
+                getStateFromSSE(url, options, eventName);
+            },
             complete: function (){
                 console.log("heatmap complete");
             }
@@ -29,15 +39,15 @@ $(window).on('load', function() {
         });
     }
 
-    function ajaxBeforeSendEvent(){
-        let url = "http://127.0.0.1:8000/get-waypoints";
-        let options = {};
-        let eventName = "ping";
-        let elementId = "coordinates";
-        getStateFromSSE(url, options, eventName);
-    }
 
     function visualizeHeatmapData(response) {
+        console.log("CREATE PLOT");
+
+        setTimeout(function (){
+            console.log(response);
+        }, 3000);
+
+        console.log("END PLOT");
     }
 
     function makeGraphCallbackFunction(callBack){

@@ -3,6 +3,7 @@ let coords;
 
 // Create EventSource for SSE endpoint
 let eventSource;
+let prev = "";
 
 function getStateFromSSE(url, options, eventName){
     eventSource = new EventSource(url, options);
@@ -28,7 +29,16 @@ function getStateFromSSE(url, options, eventName){
     eventSource.onmessage = (event) => {
         console.log(event.data);
         coords = JSON.parse(event.data);
-        updateCoordinates(coords);
+
+        if(coords.status === 'SUCCEED'){
+            eventSource.close();
+        }
+        else{
+            if(prev !== coords.status){
+                createPlotStatus(coords);
+                prev = coords.status;
+            }
+        }
     }
 
     eventSource.addEventListener(eventName, function (event) {
@@ -41,6 +51,12 @@ function getStateFromSSE(url, options, eventName){
             eventSource.close();
         }
     });
+
+    function createPlotStatus(stateData){
+        const paragraph = document.createElement('p');
+        paragraph.textContent = `status: ${stateData.status}`;
+        coordinatesElement.appendChild(paragraph);
+    }
 
     function updateCoordinates(coordinates) {
         const paragraph = document.createElement('p');
